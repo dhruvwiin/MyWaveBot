@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ university_name }} Admin</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tulane-green': '#006747',
+                        'tulane-blue': '#418FDE',
+                        'tulane-dark': '#0A2E22',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js & Alpine.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/cdn.min.js"></script>
+</head>
+
+<body class="h-full flex overflow-hidden" x-data="adminDashboard()">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-tulane-dark text-white flex-shrink-0 hidden md:flex flex-col transition-all duration-300">
+        <div class="h-16 flex items-center px-6 border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-tulane-green flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <span class="font-semibold tracking-wide">Admin Panel</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-white/10 text-white rounded-xl transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                <span class="text-sm font-medium">Dashboard</span>
+            </a>
+            <a href="/" target="_blank"
+                class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <span class="text-sm font-medium">Live Chat</span>
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="text-sm font-medium">Settings</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-white/10">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-400 to-purple-500"></div>
+                <div>
+                    <p class="text-sm font-medium text-white">Admin User</p>
+                    <p class="text-xs text-gray-400">Super Admin</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top Bar -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8">
+            <h2 class="text-xl font-bold text-gray-800">{{ university_name }} Analytics</h2>
+            <div class="flex items-center gap-4">
+                <span
+                    class="text-xs font-medium px-2.5 py-1 rounded-full bg-green-100 text-green-700 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    System Operational
+                </span>
+                <button @click="fetchAllData()" class="p-2 text-gray-400 hover:text-tulane-green transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="flex-1 overflow-y-auto p-8">
+
+            <!-- KPI Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Conversations -->
+                <div
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">Total Conversations</h3>
+                        <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-900" x-text="kpis.total_threads">0</p>
+                    <p class="text-xs text-green-600 mt-2 flex items-center font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                        +12% from last week
+                    </p>
+                </div>
+
+                <!-- Total Questions -->
+                <div
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">Total Questions</h3>
+                        <div class="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-900" x-text="kpis.total_questions">0</p>
+                    <p class="text-xs text-gray-400 mt-2">Avg <span x-text="kpis.avg_questions_per_thread">0</span> per
+                        thread</p>
+                </div>
+
+                <!-- Satisfaction Rate -->
+                <div
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">Satisfaction Rate</h3>
+                        <div class="p-2 bg-green-50 text-green-600 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-900"><span x-text="kpis.satisfaction_rate">0</span>%</p>
+                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-3">
+                        <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${kpis.satisfaction_rate}%`"></div>
+                    </div>
+                </div>
+
+                <!-- Top Topic -->
+                <div
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">Trending Topic</h3>
+                        <div class="p-2 bg-orange-50 text-orange-600 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-xl font-bold text-gray-900 truncate" x-text="topTopic || 'N/A'">N/A</p>
+                    <p class="text-xs text-gray-400 mt-2">Most active cluster</p>
+                </div>
+
+                <!-- API Tokens Used -->
+                <div
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">API Tokens</h3>
+                        <div class="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-xl font-bold text-gray-900" x-text="(kpis.total_tokens || 0).toLocaleString()">0</p>
+                    <p class="text-xs text-gray-400 mt-2">Total consumed</p>
+                </div>
+
+                <!-- API Cost -->
+                <div
+                    class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-medium text-gray-500">API Cost</h3>
+                        <div class="p-2 bg-green-50 text-green-600 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-xl font-bold text-gray-900">$<span
+                            x-text="(kpis.estimated_cost || 0).toFixed(2)">0.00</span></p>
+                    <p class="text-xs text-gray-400 mt-2">Estimated spend</p>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <!-- Topic Distribution -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6">Topic Distribution</h3>
+                    <div class="h-64">
+                        <canvas id="topicChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Sentiment/Helpfulness -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6">Sentiment Analysis</h3>
+                    <div class="h-64 relative flex items-center justify-center">
+                        <canvas id="sentimentChart"></canvas>
+                        <!-- Center Text for Doughnut -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span class="text-3xl font-bold text-gray-800" x-text="kpis.satisfaction_rate + '%'"></span>
+                            <span class="text-xs text-gray-400 uppercase tracking-wider">Positive</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ML Insights Panel -->
+            <div
+                class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl shadow-sm border border-purple-100 p-6 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-purple-500 text-white rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">AI-Powered Insights</h3>
+                            <p class="text-xs text-gray-500">Machine learning analysis of conversation patterns</p>
+                        </div>
+                    </div>
+                    <button @click="fetchMLInsights()"
+                        class="px-4 py-2 bg-purple-500 text-white text-sm font-medium rounded-lg hover:bg-purple-600 transition-colors">
+                        Refresh Insights
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Trend Prediction -->
+                    <div class="bg-white p-4 rounded-xl border border-purple-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-500" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                            <h4 class="font-semibold text-gray-700">Conversation Trend</h4>
+                        </div>
+                        <p class="text-2xl font-bold text-purple-600 capitalize" x-text="mlInsights.trend || 'stable'">
+                            stable</p>
+                        <p class="text-xs text-gray-500 mt-1">Based on last 7 days</p>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div class="bg-white p-4 rounded-xl border border-purple-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-500" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <h4 class="font-semibold text-gray-700">AI Recommendations</h4>
+                        </div>
+                        <div class="space-y-1">
+                            <template x-for="insight in mlInsights.insights" :key="insight">
+                                <p class="text-sm text-gray-600" x-text="insight"></p>
+                            </template>
+                            <p x-show="!mlInsights.insights || mlInsights.insights.length === 0"
+                                class="text-sm text-gray-400">No insights available yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800">Top Clicked Resources</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-50/50 text-xs uppercase tracking-wider text-gray-500 font-medium">
+                                <th class="px-6 py-4">Domain/Resource</th>
+                                <th class="px-6 py-4">Clicks</th>
+                                <th class="px-6 py-4">Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <template x-for="domain in kpis.top_domains" :key="domain.domain">
+                                <tr class="hover:bg-gray-50/50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-8 h-8 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold">
+                                                <span x-text="domain.domain.charAt(0).toUpperCase()"></span>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900"
+                                                x-text="domain.domain"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-600 font-medium" x-text="domain.count"></td>
+                                    <td class="px-6 py-4">
+                                        <div class="w-24 bg-gray-100 rounded-full h-1.5">
+                                            <div class="bg-blue-500 h-1.5 rounded-full" style="width: 75%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="kpis.top_domains.length === 0">
+                                <td colspan="3" class="px-6 py-8 text-center text-sm text-gray-500">No data available
+                                    yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('adminDashboard', () => ({
+                adminToken: localStorage.getItem('admin_api_token'),
+                kpis: { total_threads: 0, total_questions: 0, avg_questions_per_thread: 0, top_domains: [], satisfaction_rate: 0 },
+                topTopic: '',
+                topicChart: null,
+                sentimentChart: null,
+                mlInsights: { trend: 'stable', insights: [] },
+
+                init() {
+                    if (!this.adminToken && '{{ admin_api_token }}') {
+                        this.adminToken = '{{ admin_api_token }}';
+                        localStorage.setItem('admin_api_token', this.adminToken);
+                    }
+
+                    this.initCharts();
+
+                    // Wait for charts to be fully initialized before fetching data
+                    setTimeout(() => {
+                        this.fetchAllData();
+                        this.fetchMLInsights();
+                    }, 100);
+                },
+
+                initCharts() {
+                    // Topic Chart (Bar)
+                    const ctxTopic = document.getElementById('topicChart').getContext('2d');
+                    this.topicChart = new Chart(ctxTopic, {
+                        type: 'bar',
+                        data: {
+                            labels: [],
+                            datasets: [{
+                                label: 'Questions',
+                                data: [],
+                                backgroundColor: '#006747',
+                                borderRadius: 6,
+                                barThickness: 24
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { beginAtZero: true, grid: { borderDash: [4, 4] } },
+                                x: { grid: { display: false } }
+                            }
+                        }
+                    });
+
+                    // Sentiment Chart (Doughnut)
+                    const ctxSentiment = document.getElementById('sentimentChart').getContext('2d');
+                    this.sentimentChart = new Chart(ctxSentiment, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Positive', 'Neutral/Negative'],
+                            datasets: [{
+                                data: [0, 100],
+                                backgroundColor: ['#006747', '#E5E7EB'],
+                                borderWidth: 0,
+                                cutout: '75%'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                        }
+                    });
+                },
+
+                async fetchAllData() {
+                    console.log('Fetching admin data...');
+                    const headers = { 'Authorization': `Bearer ${this.adminToken}` };
+
+                    // 1. Overview (no auth needed since we disabled it)
+                    try {
+                        const res = await fetch('/admin/api/overview', { headers });
+                        console.log('Overview response status:', res.status);
+                        if (res.ok) {
+                            this.kpis = await res.json();
+                            console.log('KPIs loaded:', this.kpis);
+                            // Update Sentiment Chart only if it exists
+                            if (this.sentimentChart) {
+                                this.sentimentChart.data.datasets[0].data = [this.kpis.satisfaction_rate, 100 - this.kpis.satisfaction_rate];
+                                this.sentimentChart.update();
+                            }
+                        } else {
+                            console.error('Failed to fetch overview:', await res.text());
+                        }
+                    } catch (e) {
+                        console.error('Error fetching overview:', e);
+                    }
+
+                    // 2. Top Clusters
+                    try {
+                        const res = await fetch('/admin/api/top-clusters?limit=6', { headers });
+                        console.log('Clusters response status:', res.status);
+                        if (res.ok) {
+                            const data = await res.json();
+                            console.log('Clusters loaded:', data);
+                            if (data.length > 0) {
+                                this.topTopic = data[0].label;
+                                // Update Topic Chart only if it exists
+                                if (this.topicChart) {
+                                    this.topicChart.data.labels = data.map(d => d.label);
+                                    this.topicChart.data.datasets[0].data = data.map(d => d.count);
+                                    this.topicChart.update();
+                                }
+                            }
+                        } else {
+                            console.error('Failed to fetch clusters:', await res.text());
+                        }
+                    } catch (e) {
+                        console.error('Error fetching clusters:', e);
+                    }
+                },
+
+                async fetchMLInsights() {
+                    console.log('Fetching ML insights...');
+                    const headers = { 'Authorization': `Bearer ${this.adminToken}` };
+
+                    try {
+                        const res = await fetch('/admin/api/ml-insights?days=7', { headers });
+                        console.log('ML insights response status:', res.status);
+                        if (res.ok) {
+                            this.mlInsights = await res.json();
+                            console.log('ML insights loaded:', this.mlInsights);
+                        } else {
+                            console.error('Failed to fetch ML insights:', await res.text());
+                        }
+                    } catch (e) {
+                        console.error('Error fetching ML insights:', e);
+                    }
+                }
+            }))
+        });
+    </script>
+</body>
+
+</html>

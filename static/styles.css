@@ -1,0 +1,41 @@
+/* * styles.css: Compiled Tailwind CSS Placeholder
+
+In a real development environment, you would generate this file
+
+by compiling your Tailwind configuration:
+
+npx tailwindcss -i ./input.css -o ./static/styles.css --minify
+
+For demonstration and initial setup, we will use the @tailwind directives
+
+here. Note that to fully utilize Tailwind, you need a build step,
+
+but the core CSS will be included via the templates.
+*/
+
+@import url('https://www.google.com/search?q=https://fonts.googleapis.com/css2%3Ffamily%3DInter:wght%40100..900%26display%3Dswap');
+
+/* Apply Inter font globally */
+body {
+font-family: 'Inter', sans-serif;
+}
+
+/* Base styles derived from Tailwind */
+.bg-gray-50 {
+background-color: #f9fafb;
+}
+
+.text-blue-600 {
+color: #2563eb;
+}
+
+.bg-blue-600 {
+background-color: #2563eb;
+}
+
+/* Utility to ensure scrolling works as expected */
+.flex-grow {
+flex-grow: 1;
+}
+
+/* Add any custom utility classes here if needed before building */
