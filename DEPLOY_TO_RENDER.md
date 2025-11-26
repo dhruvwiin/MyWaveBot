@@ -38,8 +38,8 @@ Scroll down to the **Environment Variables** section and add the following keys 
 | Key | Value |
 | --- | --- |
 | `PERPLEXITY_API_KEY` | `pplx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
-| `ADMIN_API_TOKEN` | `secure_random_string_for_admin_auth` |
-| `HASH_SALT` | `random_salt_value` |
+| `ADMIN_API_TOKEN` | `your_secure_admin_token_here` |
+| `HASH_SALT` | `your_random_salt_value_here` |
 | `UNIVERSITY_NAME` | `Tulane University` |
 | `SEARCH_DOMAINS` | `tulane.edu,registrar.tulane.edu,housing.tulane.edu,admission.tulane.edu,financialaid.tulane.edu,catalog.tulane.edu,library.tulane.edu,campushealth.tulane.edu,campusservices.tulane.edu,it.tulane.edu,careers.tulane.edu,studentaffairs.tulane.edu` |
 | `STORE_MESSAGE_TEXT` | `True` |
