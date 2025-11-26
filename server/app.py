@@ -43,8 +43,8 @@ def admin_auth_dependency(request: Request):
     """Token-gated authentication for admin APIs."""
     auth_header = request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
-        token = auth_header.split(" ")[1]
-        if token == settings.ADMIN_API_TOKEN:
+        token = auth_header.split(" ")[1].strip()
+        if token == settings.ADMIN_API_TOKEN.strip():
             return True
     
     raise HTTPException(
