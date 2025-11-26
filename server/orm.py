@@ -8,10 +8,15 @@ from .settings import settings
 Base = declarative_base()
 
 connect_args = {}
-if "sqlite" in settings.DATABASE_URL:
+if settings.DATABASE_URL.startswith("sqlite"):
     connect_args["check_same_thread"] = False
 
-engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
+# pool_pre_ping=True helps recover from dropped connections (common in cloud environments)
+engine = create_engine(
+    settings.DATABASE_URL, 
+    connect_args=connect_args,
+    pool_pre_ping=True
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Data Model
