@@ -368,7 +368,6 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('adminDashboard', () => ({
-                adminToken: localStorage.getItem('admin_api_token'),
                 kpis: { total_threads: 0, total_questions: 0, avg_questions_per_thread: 0, top_domains: [], satisfaction_rate: 0 },
                 topTopic: '',
                 topicChart: null,
@@ -376,11 +375,6 @@
                 mlInsights: { trend: 'stable', insights: [] },
 
                 init() {
-                    if (!this.adminToken && '{{ admin_api_token }}') {
-                        this.adminToken = '{{ admin_api_token }}';
-                        localStorage.setItem('admin_api_token', this.adminToken);
-                    }
-
                     this.initCharts();
 
                     // Wait for charts to be fully initialized before fetching data
@@ -439,11 +433,10 @@
 
                 async fetchAllData() {
                     console.log('Fetching admin data...');
-                    const headers = { 'Authorization': `Bearer ${this.adminToken}` };
 
                     // 1. Overview (no auth needed since we disabled it)
                     try {
-                        const res = await fetch('/admin/api/overview', { headers });
+                        const res = await fetch('/admin/api/overview');
                         console.log('Overview response status:', res.status);
                         if (res.ok) {
                             this.kpis = await res.json();
@@ -462,7 +455,7 @@
 
                     // 2. Top Clusters
                     try {
-                        const res = await fetch('/admin/api/top-clusters?limit=6', { headers });
+                        const res = await fetch('/admin/api/top-clusters?limit=6');
                         console.log('Clusters response status:', res.status);
                         if (res.ok) {
                             const data = await res.json();
@@ -486,10 +479,9 @@
 
                 async fetchMLInsights() {
                     console.log('Fetching ML insights...');
-                    const headers = { 'Authorization': `Bearer ${this.adminToken}` };
 
                     try {
-                        const res = await fetch('/admin/api/ml-insights?days=7', { headers });
+                        const res = await fetch('/admin/api/ml-insights?days=7');
                         console.log('ML insights response status:', res.status);
                         if (res.ok) {
                             this.mlInsights = await res.json();

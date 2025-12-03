@@ -94,16 +94,19 @@
             const token = document.getElementById('token').value;
 
             try {
-                // Test the token by making a request to the admin API
-                const response = await fetch('/admin/api/overview', {
+                // Submit to login endpoint to get HttpOnly cookie
+                const response = await fetch('/admin/api/login', {
+                    method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: token })
                 });
 
                 if (response.ok) {
-                    // Token is valid, store it and redirect
-                    localStorage.setItem('admin_api_token', token);
+                    // Cookie is set by server, just redirect
+                    // Clear any old local storage token
+                    localStorage.removeItem('admin_api_token');
                     window.location.href = '/admin/dashboard';
                 } else {
                     // Invalid token

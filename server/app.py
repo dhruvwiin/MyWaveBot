@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional, Annotated
 
 from fastapi import FastAPI, Request, Form, HTTPException, Depends, status
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -41,6 +41,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # --- Authentication Dependency ---
 def admin_auth_dependency(request: Request):
     """Token-gated authentication for admin APIs."""
+    # 1. Check Cookie
+    token_cookie = request.cookies.get("admin_token")
+    if token_cookie and token_cookie == settings.ADMIN_API_TOKEN.strip():
+        return True
+
+    # 2. Check Header (Fallback)
     auth_header = request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.split(" ")[1].strip()
@@ -320,13 +326,44 @@ async def admin_login_page(request: Request):
         "university_name": settings.UNIVERSITY_NAME
     })
 
+@app.post("/admin/api/login")
+async def admin_login(request: Request):
+    """Validates admin token and sets a secure cookie."""
+    try:
+        data = await request.json()
+        token = data.get("token")
+    except:
+        form = await request.form()
+        token = form.get("token")
+    
+    print(f"Admin login attempt with token: {token[:5]}... match={token.strip() == settings.ADMIN_API_TOKEN.strip()}")
+    
+    if not token or token.strip() != settings.ADMIN_API_TOKEN.strip():
+        return JSONResponse({"status": "error", "message": "Invalid token"}, status_code=401)
+    
+    response = JSONResponse({"status": "success"})
+    response.set_cookie(
+        key="admin_token",
+        value=token.strip(),
+        httponly=True,
+        secure=False, # Set to True in production with HTTPS
+        samesite="lax",
+        path="/",
+        max_age=86400 # 24 hours
+    )
+    return response
+
 @app.get("/admin/dashboard", response_class=HTMLResponse)
 async def admin_dashboard(request: Request):
-    """Renders the admin dashboard page (requires valid token in localStorage)."""
+    """Renders the admin dashboard page (requires valid token in cookie)."""
+    token_cookie = request.cookies.get("admin_token")
+    if not token_cookie or token_cookie != settings.ADMIN_API_TOKEN.strip():
+        return RedirectResponse(url="/admin")
+
     return templates.TemplateResponse("admin.html", {
         "request": request,
-        "university_name": settings.UNIVERSITY_NAME,
-        "admin_api_token": settings.ADMIN_API_TOKEN
+        "university_name": settings.UNIVERSITY_NAME
+        # Token is NO LONGER injected here
     })
 
 @app.get("/admin/api/overview", dependencies=[Depends(admin_auth_dependency)])
