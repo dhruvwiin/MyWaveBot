@@ -12,15 +12,23 @@ if settings.DATABASE_URL.startswith("sqlite"):
     connect_args["check_same_thread"] = False
 
 # pool_pre_ping=True helps recover from dropped connections (common in cloud environments)
-db_url = settings.DATABASE_URL
-if db_url and db_url.startswith("postgres://"):
+# pool_pre_ping=True helps recover from dropped connections (common in cloud environments)
+db_url = str(settings.DATABASE_URL).strip().strip('"').strip("'")
+
+if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-engine = create_engine(
-    db_url, 
-    connect_args=connect_args,
-    pool_pre_ping=True
-)
+print(f"DEBUG: Connecting to database URL starting with: {db_url[:15]}...")
+
+try:
+    engine = create_engine(
+        db_url, 
+        connect_args=connect_args,
+        pool_pre_ping=True
+    )
+except Exception as e:
+    print(f"CRITICAL ERROR: Could not create database engine. URL was: {db_url}")
+    raise e
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Data Model
