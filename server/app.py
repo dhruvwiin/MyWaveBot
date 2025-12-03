@@ -25,6 +25,14 @@ app = FastAPI(
     description="Grounded, private university chatbot with admin analytics.",
 )
 
+# --- Database Initialization on Startup ---
+@app.on_event("startup")
+def startup_event():
+    from .orm import engine, Base
+    # Create tables if they don't exist
+    Base.metadata.create_all(bind=engine)
+    print("DEBUG: Database tables created/verified.")
+
 # CORS (Restrict this to your frontend domain in production)
 app.add_middleware(
     CORSMiddleware,
