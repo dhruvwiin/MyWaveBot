@@ -81,6 +81,8 @@ def simple_topic_clustering(message: str) -> Optional[int]:
         return 2 # 'Billing/Bursar'
     if 'wifi' in message or 'eduroam' in message or 'network' in message:
         return 3 # 'IT/Network'
+    if 'event' in message or 'activity' in message or 'club' in message or 'party' in message:
+        return 4 # 'Student Life/Events'
     return None # 'Other'
 
 def upsert_conversation(db: Session, session_id: str, user_hash: Optional[str] = None) -> Conversation:
@@ -92,7 +94,7 @@ def upsert_conversation(db: Session, session_id: str, user_hash: Optional[str] =
         db.commit()
         db.refresh(conv)
         # Create initial placeholder clusters if they don't exist
-        for id, label in [(1, "Registration"), (2, "Billing"), (3, "IT/Wifi")]:
+        for id, label in [(1, "Registration"), (2, "Billing"), (3, "IT/Wifi"), (4, "Student Life/Events")]:
             if not db.query(TopicCluster).filter(TopicCluster.id == id).first():
                 db.add(TopicCluster(id=id, label=label))
         db.commit()
