@@ -277,7 +277,7 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <button @click="trainMLModel()" :disabled="isTraining"
-                            class="px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-lg hover:bg-white/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
                             <span x-show="isTraining"
                                 class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
                             <span x-text="isTraining ? 'Training...' : 'Train Model'"></span>
