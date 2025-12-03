@@ -15,6 +15,12 @@ if settings.DATABASE_URL.startswith("sqlite"):
 # pool_pre_ping=True helps recover from dropped connections (common in cloud environments)
 db_url = str(settings.DATABASE_URL).strip().strip('"').strip("'")
 
+# Check for placeholder values or empty strings
+if not db_url or ".........." in db_url:
+    print("WARNING: DATABASE_URL is invalid or a placeholder. Falling back to SQLite.")
+    db_url = "sqlite:///./analytics.db"
+    connect_args["check_same_thread"] = False
+
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
